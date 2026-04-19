@@ -3,11 +3,10 @@ import hashlib
 from flask import Flask, render_template, redirect
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "fableworld_2026_key")
+app.secret_key = "fableworld_2026_super_key"
 
-# --- ТВОИ ДАННЫЕ ANYPAY ---
-ANYPAY_ID = "33633" 
-ANYPAY_SECRET = "8Hb9evSnS1mwNqgvQTPjwjwdog18FNI3CC992YS" 
+ANYPAY_ID = "33633"
+ANYPAY_SECRET = "8Hb9evSnS1mwNqgvQTPjwjwdog18FNI3CC992YS"
 
 @app.route('/')
 def index():
@@ -21,21 +20,13 @@ def anypay_verify():
 def buy(item, price):
     pay_id = str(os.urandom(3).hex())
     currency = "RUB"
-    
-    # Строго по документации AnyPay
+    # Формула SHA256 для AnyPay
     hash_str = f"{currency}:{price}:{ANYPAY_SECRET}:{ANYPAY_ID}:{pay_id}"
     sign = hashlib.sha256(hash_str.encode()).hexdigest()
     
-    anypay_url = (
-        f"https://anypay.io/merchant?"
-        f"merchant_id={ANYPAY_ID}&"
-        f"amount={price}&"
-        f"pay_id={pay_id}&"
-        f"currency={currency}&"
-        f"sign={sign}&"
-        f"desc=FableWorld:{item}"
-    )
-    return redirect(anypay_url)
+    url = (f"https://anypay.io/merchant?merchant_id={ANYPAY_ID}&amount={price}"
+           f"&pay_id={pay_id}&currency={currency}&sign={sign}&desc=FableWorld:{item}")
+    return redirect(url)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
