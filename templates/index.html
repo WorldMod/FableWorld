@@ -2,36 +2,148 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>FableWorld - Донат</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FableWorld | Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 50px; }
-        .card { background: #2a2a2a; padding: 20px; border-radius: 10px; display: inline-block; }
-        input { padding: 10px; margin: 5px; border-radius: 5px; border: none; }
-        button { padding: 10px 20px; background: #f39c12; border: none; color: white; cursor: pointer; border-radius: 5px; }
+        :root { --accent: #007bff; --bg: #050505; --card: #111; --text: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+        
+        /* Навигация */
+        nav { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 1.4rem; font-weight: 900; color: #fff; text-decoration: none; letter-spacing: 1px; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-links a { color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+
+        /* Секции */
+        .section { display: none; animation: fadeIn 0.4s ease-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Профиль */
+        .user-card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .balance-info { text-align: right; }
+        .balance-val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+
+        /* Сетка товаров */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .product-card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 30px; text-align: center; transition: 0.3s; }
+        .product-card:hover { border-color: var(--accent); transform: scale(1.02); }
+        .product-card img { width: 90px; margin-bottom: 20px; }
+        .product-card h3 { margin: 10px 0; font-size: 1.3rem; }
+        
+        /* Кнопки */
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; text-decoration: none; display: block; margin-top: 20px; transition: 0.3s; }
+        .btn:hover { filter: brightness(1.2); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); }
+
+        /* Форма входа */
+        .login-box { max-width: 400px; margin: 80px auto; background: var(--card); padding: 40px; border-radius: 20px; border: 1px solid #222; text-align: center; }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        input:focus { border-color: var(--accent); }
+
+        footer { text-align: center; padding: 60px 20px; color: #333; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <h1>FableWorld Project</h1>
-    
+
+<nav>
+    <a href="#" class="logo">FABLE<span style="color:var(--accent)">WORLD</span></a>
+    <div class="nav-links">
+        <a onclick="openTab('shop')" id="t-shop" class="active">Магазин</a>
+        <a onclick="openTab('info')" id="t-info">Информация</a>
+        <a onclick="openTab('help')" id="t-help">Помощь</a>
+    </div>
+</nav>
+
+<div class="container">
     {% if user %}
-        <div class="card">
-            <p>Привет, <b>{{ user.name }}</b>!</p>
-            <p>Ваш баланс: <b>{{ user.balance }} руб.</b></p>
-            <a href="/logout" style="color: #ccc;">Выйти</a>
+        <div id="shop" class="section active">
+            <div class="user-card">
+                <div>
+                    <div style="color: #666; font-size: 0.9rem;">Авторизован как</div>
+                    <div style="font-size: 1.2rem; font-weight: 700;">{{ user.name }}</div>
+                </div>
+                <div class="balance-info">
+                    <div style="color: #666; font-size: 0.9rem;">Баланс</div>
+                    <div class="balance-val">{{ user.balance }} ₽</div>
+                    <a href="/logout" style="color: #444; text-decoration: none; font-size: 0.8rem;">Выйти</a>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="product-card">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2150/2150150.png">
+                    <h3>Стартовый пакет</h3>
+                    <p style="color:#666">Базовый набор ресурсов</p>
+                    <div style="font-size: 1.4rem; font-weight: 900;">100 ₽</div>
+                    <a href="/buy/pack_1/100" class="btn">КУПИТЬ</a>
+                </div>
+                <div class="product-card">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2534/2534204.png">
+                    <h3>Расширенный пакет</h3>
+                    <p style="color:#666">Для продвинутых пользователей</p>
+                    <div style="font-size: 1.4rem; font-weight: 900;">300 ₽</div>
+                    <a href="/buy/pack_2/300" class="btn">КУПИТЬ</a>
+                </div>
+                <div class="product-card">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1215/1215436.png">
+                    <h3>Премиум доступ</h3>
+                    <p style="color:#666">Максимальные возможности</p>
+                    <div style="font-size: 1.4rem; font-weight: 900;">500 ₽</div>
+                    <a href="/buy/pack_3/500" class="btn">КУПИТЬ</a>
+                </div>
+            </div>
         </div>
+
+        <div id="info" class="section">
+            <div class="product-card" style="text-align: left; max-width: 700px; margin: 0 auto;">
+                <h2>Оплата и доставка</h2>
+                <p>Все товары доставляются автоматически сразу после подтверждения транзакции платежной системой.</p>
+                <p>Если возникла задержка, подождите до 15 минут или свяжитесь с поддержкой.</p>
+            </div>
+        </div>
+
+        <div id="help" class="section">
+            <div class="product-card" style="max-width: 600px; margin: 0 auto;">
+                <h2>Служба поддержки</h2>
+                <p>Возникли вопросы? Мы на связи.</p>
+                <div style="margin-top: 20px;">
+                    <a href="#" class="btn" style="display:inline-block; margin: 5px;">Написать в VK</a>
+                    <a href="#" class="btn" style="display:inline-block; margin: 5px; background: #333;">Telegram</a>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-        <div class="card">
-            <h3>Вход / Регистрация</h3>
+        <div class="login-box">
+            <h2 style="margin-bottom: 10px;">Вход</h2>
+            <p style="color: #666; margin-bottom: 30px;">Введите данные вашего аккаунта</p>
             <form action="/auth" method="post">
-                <input type="text" name="username" placeholder="Ник в КРМП" required><br>
-                <input type="password" name="password" placeholder="Пароль" required><br>
-                <button type="submit" name="action" value="login">Войти</button>
-                <button type="submit" name="action" value="reg" style="background: #27ae60;">Регистрация</button>
+                <input type="text" name="username" placeholder="Ваш логин" required>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit" name="action" value="login" class="btn" style="width: 100%;">ВОЙТИ</button>
+                <button type="submit" name="action" value="reg" class="btn" style="width: 100%; background: transparent; border: 1px solid #333; color: #666; margin-top: 15px;">РЕГИСТРАЦИЯ</button>
             </form>
         </div>
     {% endif %}
+</div>
 
-    <hr style="margin-top: 50px; border: 0.5px solid #333;">
-    <p>Проект верифицирован для AnyPay</p>
+<footer>
+    <p>&copy; 2026 FableWorld Store. All rights reserved.</p>
+    <p style="opacity: 0.2;">Verification: aaeff3cc76f30526caf08a3e0be1</p>
+</footer>
+
+<script>
+    function openTab(name) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        document.getElementById('t-' + name).classList.add('active');
+    }
+</script>
+
 </body>
 </html>
