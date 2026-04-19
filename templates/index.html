@@ -3,147 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FableWorld | Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>FableWorld | Анархия Нового Поколения</title>
     <style>
-        :root { --accent: #007bff; --bg: #050505; --card: #111; --text: #ffffff; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+        :root { --obs: #0f0a1d; --cry: #a030d1; --stn: #2c2c2e; --neon: #ce42f5; }
+        * { box-sizing: border-box; transition: 0.3s; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--obs); color: #e0e0e0; margin: 0; background-image: radial-gradient(circle at 50% 0%, #1a0f2e 0%, var(--obs) 100%); min-height: 100vh; }
+
+        .sidebar { position: fixed; left: -285px; top: 0; width: 280px; height: 100%; background: #0c0816; z-index: 2000; padding: 40px 20px; border-right: 2px solid var(--cry); box-shadow: 10px 0 30px rgba(0,0,0,0.8); }
+        .sidebar.open { left: 0; }
+        .overlay { position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; backdrop-filter: blur(3px); }
+        .overlay.active { display: block; }
         
-        /* Навигация */
-        nav { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 10%; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 1.4rem; font-weight: 900; color: #fff; text-decoration: none; letter-spacing: 1px; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: #666; text-decoration: none; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 1001; background: var(--cry); border: none; color: #fff; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px var(--cry); }
 
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .nav-link { display: flex; align-items: center; gap: 10px; color: #bbb; text-decoration: none; padding: 15px; margin: 8px 0; border-radius: 10px; cursor: pointer; font-size: 1.1rem; }
+        .nav-link:hover { background: rgba(160, 48, 209, 0.2); color: #fff; transform: translateX(10px); }
 
-        /* Секции */
-        .section { display: none; animation: fadeIn 0.4s ease-out; }
-        .section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .main { padding: 20px; padding-top: 100px; max-width: 1000px; margin: 0 auto; text-align: center; }
+        .content { display: none; animation: slideIn 0.4s ease-out; }
+        .active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Профиль */
-        .user-card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #222; display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .balance-info { text-align: right; }
-        .balance-val { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+        .info-section { background: rgba(255,255,255,0.03); border: 1px solid rgba(160,48,209,0.3); border-radius: 20px; padding: 30px; margin-bottom: 40px; text-align: left; line-height: 1.6; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .feature-item { background: var(--stn); padding: 15px; border-radius: 12px; border-bottom: 3px solid var(--cry); }
 
-        /* Сетка товаров */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .product-card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 30px; text-align: center; transition: 0.3s; }
-        .product-card:hover { border-color: var(--accent); transform: scale(1.02); }
-        .product-card img { width: 90px; margin-bottom: 20px; }
-        .product-card h3 { margin: 10px 0; font-size: 1.3rem; }
+        .rank-card { background: linear-gradient(145deg, #161122, #0d0918); border: 1px solid #332a44; border-radius: 25px; padding: 30px; margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .price-tag { font-size: 2rem; color: #ffca28; font-weight: 800; margin: 20px 0; display: block; }
         
-        /* Кнопки */
-        .btn { background: var(--accent); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: 700; cursor: pointer; text-decoration: none; display: block; margin-top: 20px; transition: 0.3s; }
-        .btn:hover { filter: brightness(1.2); box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3); }
+        .ip-box { background: rgba(160, 48, 209, 0.1); border: 2px dashed var(--cry); padding: 15px; border-radius: 15px; cursor: pointer; display: inline-block; margin: 20px 0; }
+        .ip-text { font-family: monospace; font-size: 1.4rem; color: var(--neon); }
 
-        /* Форма входа */
-        .login-box { max-width: 400px; margin: 80px auto; background: var(--card); padding: 40px; border-radius: 20px; border: 1px solid #222; text-align: center; }
-        input { width: 100%; padding: 14px; margin-bottom: 15px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
-        input:focus { border-color: var(--accent); }
+        .btn-pay { background: linear-gradient(90deg, var(--cry), var(--neon)); border: none; color: #fff; padding: 18px; width: 100%; border-radius: 15px; font-weight: 800; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; }
+        .btn-pay:hover { box-shadow: 0 0 30px var(--neon); transform: scale(1.02); }
 
-        footer { text-align: center; padding: 60px 20px; color: #333; font-size: 0.8rem; }
+        .pay-modal { background: var(--obs); border: 2px solid var(--cry); border-radius: 25px; padding: 40px; max-width: 500px; margin: 0 auto; box-shadow: 0 0 50px rgba(0,0,0,1); }
+        input { width:100%; padding:15px; border-radius:10px; border:1px solid var(--cry); background:#000; color:#fff; margin-top:20px; outline:none; }
     </style>
 </head>
 <body>
 
-<nav>
-    <a href="#" class="logo">FABLE<span style="color:var(--accent)">WORLD</span></a>
-    <div class="nav-links">
-        <a onclick="openTab('shop')" id="t-shop" class="active">Магазин</a>
-        <a onclick="openTab('info')" id="t-info">Информация</a>
-        <a onclick="openTab('help')" id="t-help">Помощь</a>
-    </div>
-</nav>
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+<button class="menu-btn" onclick="toggleMenu()">☰ МЕНЮ</button>
 
-<div class="container">
-    {% if user %}
-        <div id="shop" class="section active">
-            <div class="user-card">
-                <div>
-                    <div style="color: #666; font-size: 0.9rem;">Авторизован как</div>
-                    <div style="font-size: 1.2rem; font-weight: 700;">{{ user.name }}</div>
-                </div>
-                <div class="balance-info">
-                    <div style="color: #666; font-size: 0.9rem;">Баланс</div>
-                    <div class="balance-val">{{ user.balance }} ₽</div>
-                    <a href="/logout" style="color: #444; text-decoration: none; font-size: 0.8rem;">Выйти</a>
-                </div>
-            </div>
-
-            <div class="grid">
-                <div class="product-card">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2150/2150150.png">
-                    <h3>Стартовый пакет</h3>
-                    <p style="color:#666">Базовый набор ресурсов</p>
-                    <div style="font-size: 1.4rem; font-weight: 900;">100 ₽</div>
-                    <a href="/buy/pack_1/100" class="btn">КУПИТЬ</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2534/2534204.png">
-                    <h3>Расширенный пакет</h3>
-                    <p style="color:#666">Для продвинутых пользователей</p>
-                    <div style="font-size: 1.4rem; font-weight: 900;">300 ₽</div>
-                    <a href="/buy/pack_2/300" class="btn">КУПИТЬ</a>
-                </div>
-                <div class="product-card">
-                    <img src="https://cdn-icons-png.flaticon.com/512/1215/1215436.png">
-                    <h3>Премиум доступ</h3>
-                    <p style="color:#666">Максимальные возможности</p>
-                    <div style="font-size: 1.4rem; font-weight: 900;">500 ₽</div>
-                    <a href="/buy/pack_3/500" class="btn">КУПИТЬ</a>
-                </div>
-            </div>
-        </div>
-
-        <div id="info" class="section">
-            <div class="product-card" style="text-align: left; max-width: 700px; margin: 0 auto;">
-                <h2>Оплата и доставка</h2>
-                <p>Все товары доставляются автоматически сразу после подтверждения транзакции платежной системой.</p>
-                <p>Если возникла задержка, подождите до 15 минут или свяжитесь с поддержкой.</p>
-            </div>
-        </div>
-
-        <div id="help" class="section">
-            <div class="product-card" style="max-width: 600px; margin: 0 auto;">
-                <h2>Служба поддержки</h2>
-                <p>Возникли вопросы? Мы на связи.</p>
-                <div style="margin-top: 20px;">
-                    <a href="#" class="btn" style="display:inline-block; margin: 5px;">Написать в VK</a>
-                    <a href="#" class="btn" style="display:inline-block; margin: 5px; background: #333;">Telegram</a>
-                </div>
-            </div>
-        </div>
-
-    {% else %}
-        <div class="login-box">
-            <h2 style="margin-bottom: 10px;">Вход</h2>
-            <p style="color: #666; margin-bottom: 30px;">Введите данные вашего аккаунта</p>
-            <form action="/auth" method="post">
-                <input type="text" name="username" placeholder="Ваш логин" required>
-                <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit" name="action" value="login" class="btn" style="width: 100%;">ВОЙТИ</button>
-                <button type="submit" name="action" value="reg" class="btn" style="width: 100%; background: transparent; border: 1px solid #333; color: #666; margin-top: 15px;">РЕГИСТРАЦИЯ</button>
-            </form>
-        </div>
-    {% endif %}
+<div class="sidebar" id="sidebar">
+    <h2 style="color: var(--neon); text-align: center; letter-spacing: 2px;">FABLEWORLD</h2>
+    <div class="nav-link" onclick="tab('h')">🏠 ГЛАВНАЯ</div>
+    <div class="nav-link" onclick="tab('t')">🛒 ТОВАРЫ</div>
+    <div class="nav-link" onclick="tab('s')">🛠 ПОДДЕРЖКА</div>
 </div>
 
-<footer>
-    <p>&copy; 2026 FableWorld Store. All rights reserved.</p>
-    <p style="opacity: 0.2;">Verification: aaeff3cc76f30526caf08a3e0be1</p>
-</footer>
+<div class="main">
+    <div id="h" class="content active">
+        <h1 style="font-size: 3.5rem; text-shadow: 0 0 25px var(--cry);">FABLEWORLD</h1>
+        <p style="opacity: 0.7;">Anarchy Server • Version 1.21.4</p>
+        
+        <div class="ip-box" onclick="copyIP()">
+            <div id="ip-hint" style="font-size: 10px; opacity: 0.5; margin-bottom: 5px;">КЛИКНИ ДЛЯ КОПИРОВАНИЯ</div>
+            <span class="ip-text">fableworld.falix.gg</span>
+        </div>
+
+        <div class="info-section">
+            <h2 style="color: var(--neon);">НАСТОЯЩАЯ АНАРХИЯ</h2>
+            <div class="feature-grid">
+                <div class="feature-item"><b>💎 Экономика</b><br>Аукционы и рынок.</div>
+                <div class="feature-item"><b>⚔️ Кланы</b><br>Захватывай базы.</div>
+                <div class="feature-item"><b>🛡️ Защита</b><br>Мощный античит.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="t" class="content">
+        <h1>МАГАЗИН</h1>
+        <div class="grid" id="ranks-list">
+            <div class="rank-card">
+                <h2 style="color: #5f5;">VIP</h2>
+                <ul style="text-align: left; color: #aaa; font-size: 14px;">
+                    <li>2 точки дома</li>
+                    <li>Команда /feed</li>
+                </ul>
+                <span class="price-tag">70.00 ₽</span>
+                <button class="btn-pay" onclick="showPay('VIP', 70)">КУПИТЬ</button>
+            </div>
+
+            <div class="rank-card" style="border-color: var(--neon);">
+                <h2 style="color: var(--neon);">OVERLORD</h2>
+                <ul style="text-align: left; color: #aaa; font-size: 14px;">
+                    <li>Полет везде</li>
+                    <li>Режим /god</li>
+                </ul>
+                <span class="price-tag">11500.00 ₽</span>
+                <button class="btn-pay" onclick="showPay('OVERLORD', 11500)">ЗАВЛАДЕТЬ</button>
+            </div>
+        </div>
+
+        <div id="pay-screen" style="display: none;">
+            <div class="pay-modal">
+                <button onclick="hidePay()" style="background:none; border:none; color:#777; cursor:pointer; float:left;">← Назад</button>
+                <h2 id="pay-title">Оформление</h2>
+                <p id="pay-info" style="color: #aaa;"></p>
+                <input type="text" id="user-nick" placeholder="Введите ваш ник">
+                <button class="btn-pay" style="margin-top:20px;" onclick="processOrder()">ОПЛАТИТЬ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    function openTab(name) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-        document.getElementById(name).classList.add('active');
-        document.getElementById('t-' + name).classList.add('active');
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function tab(id) {
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id !== 't') hidePay();
+        toggleMenu();
+    }
+
+    function copyIP() {
+        navigator.clipboard.writeText("fableworld.falix.gg");
+        document.getElementById('ip-hint').innerText = "СКОПИРОВАНО!";
+        setTimeout(() => { document.getElementById('ip-hint').innerText = "КЛИКНИ ДЛЯ КОПИРОВАНИЯ"; }, 2000);
+    }
+
+    function showPay(name, price) {
+        document.getElementById('ranks-list').style.display = 'none';
+        document.getElementById('pay-screen').style.display = 'block';
+        document.getElementById('pay-title').innerText = name;
+        document.getElementById('pay-info').innerText = "Цена: " + price + " ₽";
+        window.currentRank = name;
+        window.currentPrice = price;
+    }
+
+    function hidePay() {
+        document.getElementById('ranks-list').style.display = 'grid';
+        document.getElementById('pay-screen').style.display = 'none';
+    }
+
+    function processOrder() {
+        const nick = document.getElementById('user-nick').value;
+        if(!nick) return alert("Введите ник!");
+        location.href = `/buy/${window.currentRank}_${nick}/${window.currentPrice}`;
     }
 </script>
-
 </body>
 </html>
