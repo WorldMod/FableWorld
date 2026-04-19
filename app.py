@@ -1,0 +1,79 @@
+import os
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__)
+# Секретный ключ для работы сессий (логина)
+app.secret_key = os.environ.get("SECRET_KEY", "fableworld_secret_2026")
+DB_PATH = 'users.db'
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def init_db():
+    with get_db_connection() as conn:
+        conn.execute('''CREATE TABLE IF NOT EXISTS users 
+                        (username TEXT PRIMARY KEY, password TEXT, balance REAL DEFAULT 0.0)''')
+        conn.commit()
+
+# Создаем базу при запуске
+init_db()
+
+# --- ВЕРИФИКАЦИЯ ANYPAY ---
+@app.route('/anypay-verification.txt')
+def anypay_verify():
+    return "aaeff3cc76f30526caf08a3e0be1"
+
+# --- ГЛАВНАЯ СТРАНИЦА ---
+@app.route('/')
+def index():
+    user_data = None
+    if 'user' in session:
+        with get_db_connection() as conn:
+            res = conn.execute("SELECT username, balance FROM users WHERE username = ?", (session['user'],)).fetchone()
+            if res:
+                user_data = {'name': res['username'], 'balance': res['balance']}
+    return render_template('index.html', user=user_data)
+
+# --- АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ ---
+@app.route('/auth', methods=['POST'])
+def auth():
+    user = request.form.get('username', '').lower().strip()
+    pw = request.form.get('password')
+    act = request.form.get('action')
+    
+    if not user or not pw:
+        return redirect(url_for('index'))
+
+    with get_db_connection() as conn:
+        try:
+            if act == 'reg':
+                # Хешируем пароль и сохраняем юзера
+                hashed_pw = generate_password_hash(pw)
+                conn.execute("INSERT INTO users (username, password, balance) VALUES (?, ?, ?)", 
+                             (user, hashed_pw, 0.0))
+                conn.commit()
+                session['user'] = user
+            else:
+                # Вход: проверяем пароль
+                res = conn.execute("SELECT password FROM users WHERE username = ?", (user,)).fetchone()
+                if res and check_password_hash(res['password'], pw):
+                    session['user'] = user
+        except sqlite3.IntegrityError:
+            # Если юзер уже есть — просто ничего не делаем (можно добавить уведомление)
+            pass 
+    return redirect(url_for('index'))
+
+# --- ВЫХОД ---
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+if __name__ == '__main__':
+    # На Render порт берется из переменной окружения
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
