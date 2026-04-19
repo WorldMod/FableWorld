@@ -1,39 +1,50 @@
 import os
+import hashlib
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
-# Секретный ключ для работы сессий (логина)
-app.secret_key = os.environ.get("SECRET_KEY", "fableworld_secret_2026")
-DB_PATH = 'users.db'
+app.secret_key = os.environ.get("SECRET_KEY", "fableworld_ultra_2026")
 
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+# --- ТВОИ ДАННЫЕ ANYPAY ---
+ANYPAY_ID = "33633"  # Твой ID проекта
+ANYPAY_SECRET = "8Hb9evSnS1mwNqgvQTPjwjwdog18FNI3CC992YS" # Твой ключ
 
-def init_db():
-    with get_db_connection() as conn:
-        conn.execute('''CREATE TABLE IF NOT EXISTS users 
-                        (username TEXT PRIMARY KEY, password TEXT, balance REAL DEFAULT 0.0)''')
-        conn.commit()
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-# Создаем базу при запуске
-init_db()
-
-# --- ВЕРИФИКАЦИЯ ANYPAY ---
+# Верификация для модерации
 @app.route('/anypay-verification.txt')
 def anypay_verify():
     return "aaeff3cc76f30526caf08a3e0be1"
 
-# --- ГЛАВНАЯ СТРАНИЦА ---
-@app.route('/')
-def index():
-    user_data = None
-    if 'user' in session:
-        with get_db_connection() as conn:
-            res = conn.execute("SELECT username, balance FROM users WHERE username = ?", (session['user'],)).fetchone()
+# ГЕНЕРАТОР РЕАЛЬНОЙ ОПЛАТЫ
+@app.route('/buy/<item>/<int:price>')
+def buy(item, price):
+    pay_id = str(os.urandom(3).hex()) # Случайный ID заказа
+    currency = "RUB"
+    
+    # Подпись AnyPay: SHA256(currency:amount:secret:project_id:pay_id)
+    hash_str = f"{currency}:{price}:{ANYPAY_SECRET}:{ANYPAY_ID}:{pay_id}"
+    sign = hashlib.sha256(hash_str.encode()).hexdigest()
+    
+    # Формируем прямую ссылку на кассу
+    anypay_url = (
+        f"https://anypay.io/merchant?"
+        f"merchant_id={ANYPAY_ID}&"
+        f"amount={price}&"
+        f"pay_id={pay_id}&"
+        f"currency={currency}&"
+        f"sign={sign}&"
+        f"desc=FableWorld: {item}"
+    )
+    
+    return redirect(anypay_url)
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
             if res:
                 user_data = {'name': res['username'], 'balance': res['balance']}
     return render_template('index.html', user=user_data)
