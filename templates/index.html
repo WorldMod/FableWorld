@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>FableWorld - Донат</title>
+    <style>
+        body { font-family: sans-serif; background: #1a1a1a; color: white; text-align: center; padding: 50px; }
+        .card { background: #2a2a2a; padding: 20px; border-radius: 10px; display: inline-block; }
+        input { padding: 10px; margin: 5px; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #f39c12; border: none; color: white; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>FableWorld Project</h1>
+    
+    {% if user %}
+        <div class="card">
+            <p>Привет, <b>{{ user.name }}</b>!</p>
+            <p>Ваш баланс: <b>{{ user.balance }} руб.</b></p>
+            <a href="/logout" style="color: #ccc;">Выйти</a>
+        </div>
+    {% else %}
+        <div class="card">
+            <h3>Вход / Регистрация</h3>
+            <form action="/auth" method="post">
+                <input type="text" name="username" placeholder="Ник в КРМП" required><br>
+                <input type="password" name="password" placeholder="Пароль" required><br>
+                <button type="submit" name="action" value="login">Войти</button>
+                <button type="submit" name="action" value="reg" style="background: #27ae60;">Регистрация</button>
+            </form>
+        </div>
+    {% endif %}
+
+    <hr style="margin-top: 50px; border: 0.5px solid #333;">
+    <p>Проект верифицирован для AnyPay</p>
+</body>
+</html>
