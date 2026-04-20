@@ -3,56 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FableWorld | Official Store</title>
+    <title>FableWorld | Анархия</title>
     <style>
         :root { --obs: #0f0a1d; --cry: #a030d1; --neon: #ce42f5; --gold: #ffca28; }
-        * { box-sizing: border-box; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-family: 'Segoe UI', Roboto, sans-serif; }
+        * { box-sizing: border-box; transition: 0.3s; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--obs); color: #e0e0e0; margin: 0; min-height: 100vh; overflow-x: hidden; }
         
-        /* Анимированный фон */
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 0%, #1a0f2e 0%, var(--obs) 100%); z-index: -1; }
-
-        /* Sidebar & Menu */
-        .sidebar { position: fixed; left: -285px; top: 0; width: 280px; height: 100%; background: #0c0816; z-index: 2000; padding: 40px 20px; border-right: 2px solid var(--cry); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+        /* Стили Меню */
+        .sidebar { position: fixed; left: -285px; top: 0; width: 280px; height: 100%; background: #0c0816; z-index: 2000; padding: 40px 20px; border-right: 2px solid var(--cry); }
         .sidebar.open { left: 0; }
         .overlay { position: fixed; display: none; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1999; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
-        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 1001; background: var(--cry); border: none; color: #fff; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: 900; box-shadow: 0 0 15px var(--cry); animation: pulse 2s infinite; }
+        .menu-btn { position: fixed; top: 20px; left: 20px; z-index: 1001; background: var(--cry); border: none; color: #fff; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: bold; box-shadow: 0 0 15px var(--cry); }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(160, 48, 209, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(160, 48, 209, 0); } 100% { box-shadow: 0 0 0 0 rgba(160, 48, 209, 0); } }
-
-        .nav-link { display: flex; align-items: center; gap: 12px; color: #bbb; text-decoration: none; padding: 16px; margin: 10px 0; border-radius: 12px; cursor: pointer; font-size: 1.1rem; font-weight: 600; }
-        .nav-link:hover { background: rgba(160, 48, 209, 0.2); color: #fff; transform: translateX(10px); box-shadow: -5px 0 0 var(--neon); }
+        .nav-link { display: flex; align-items: center; gap: 12px; color: #bbb; text-decoration: none; padding: 16px; margin: 10px 0; border-radius: 12px; cursor: pointer; }
+        .nav-link:hover { background: rgba(160, 48, 209, 0.2); color: #fff; transform: translateX(10px); }
 
         .main { padding: 20px; padding-top: 100px; max-width: 1200px; margin: 0 auto; text-align: center; }
-        .content { display: none; animation: slideUp 0.5s ease-out; }
+        .content { display: none; animation: fadeIn 0.5s ease; }
         .content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Элементы главной */
-        .hero-title { font-size: 4rem; font-weight: 900; text-shadow: 0 0 30px var(--cry); margin-bottom: 10px; letter-spacing: 3px; }
-        .ip-box { background: rgba(160, 48, 209, 0.1); border: 2px dashed var(--cry); padding: 20px; border-radius: 20px; cursor: pointer; display: inline-block; margin: 30px 0; position: relative; }
-        .ip-box:hover { border-style: solid; background: rgba(160, 48, 209, 0.2); }
-        .ip-text { font-family: monospace; font-size: 1.6rem; color: var(--neon); font-weight: bold; }
+        /* Инфо Карточки */
+        .info-card { background: linear-gradient(145deg, #161122, #0d0918); border: 1px solid #332a44; border-radius: 20px; padding: 25px; border-bottom: 4px solid var(--cry); }
+        .info-card h3 { color: var(--neon); margin-top: 0; }
 
-        /* Карточки товаров */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 40px; }
-        .rank-card { background: linear-gradient(145deg, #161122, #0d0918); border: 1px solid #332a44; border-radius: 25px; padding: 30px; position: relative; overflow: hidden; }
-        .rank-card::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(160,48,209,0.1) 0%, transparent 70%); z-index: 0; }
-        .rank-card:hover { border-color: var(--neon); transform: scale(1.03); box-shadow: 0 15px 40px rgba(0,0,0,0.6); }
-        .rank-card * { position: relative; z-index: 1; }
-        .rank-card h3 { font-size: 1.8rem; margin: 0; color: #fff; }
-        .rank-desc { text-align: left; font-size: 0.9rem; color: #aaa; margin: 20px 0; min-height: 80px; }
-        .rank-desc li { margin-bottom: 5px; list-style: "⚡ "; }
-        .price-tag { font-size: 2rem; color: var(--gold); font-weight: 800; margin-bottom: 20px; display: block; }
+        /* Магазин */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+        .rank-card { background: #161122; border: 1px solid #332a44; border-radius: 20px; padding: 25px; text-align: left; }
+        .rank-card:hover { border-color: var(--neon); transform: scale(1.02); }
+        .price { font-size: 1.8rem; color: var(--gold); font-weight: 800; display: block; margin: 15px 0; }
         
-        .btn-pay { background: linear-gradient(90deg, var(--cry), var(--neon)); border: none; color: #fff; padding: 16px; width: 100%; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-pay:hover { filter: brightness(1.2); box-shadow: 0 0 25px var(--neon); }
+        .btn { background: linear-gradient(90deg, var(--cry), var(--neon)); border: none; color: #fff; padding: 14px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn:hover { box-shadow: 0 0 20px var(--neon); }
 
-        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--cry); background: #000; color: #fff; margin: 15px 0; outline: none; font-size: 1rem; }
-        .glass-box { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(160,48,209,0.3); border-radius: 25px; padding: 40px; max-width: 600px; margin: 0 auto; }
-        
-        .badge { background: var(--cry); padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; vertical-align: middle; }
+        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #333; background: #000; color: #fff; margin-bottom: 15px; outline: none; }
+        input:focus { border-color: var(--cry); }
+        .glass-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(160,48,209,0.3); border-radius: 25px; padding: 40px; max-width: 500px; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -61,7 +48,7 @@
 <button class="menu-btn" onclick="toggleMenu()">☰ МЕНЮ</button>
 
 <div class="sidebar" id="sidebar">
-    <h2 style="color: var(--neon); text-align: center; letter-spacing: 2px;">FABLEWORLD</h2>
+    <h2 style="color: var(--neon); text-align: center;">FABLEWORLD</h2>
     <div class="nav-link" onclick="tab('h')">🏠 ГЛАВНАЯ</div>
     <div class="nav-link" onclick="tab('t')">🛒 МАГАЗИН</div>
     <div class="nav-link" onclick="tab('a')">👤 ПРОФИЛЬ</div>
@@ -72,149 +59,60 @@
 <div class="main">
     
     <div id="h" class="content active">
-        <h1 class="hero-title">FABLEWORLD</h1>
-        <p style="font-size: 1.2rem; opacity: 0.8;">Анархия Нового Поколения • Версия 1.21.4</p>
-        
-        <div class="ip-box" onclick="copyIP()">
-            <div id="ip-hint" style="font-size: 10px; opacity: 0.5; margin-bottom: 5px;">НАЖМИ, ЧТОБЫ КОПИРОВАТЬ</div>
-            <span class="ip-text">fableworld.falix.gg</span>
+        <h1 style="font-size: 3.5rem; text-shadow: 0 0 20px var(--cry);">FABLEWORLD</h1>
+        <div style="background: rgba(160,48,209,0.1); padding: 15px; border-radius: 15px; border: 2px dashed var(--cry); display: inline-block; cursor: pointer;" onclick="copyIP()">
+            <span id="ip" style="color: var(--neon); font-weight: bold; font-family: monospace; font-size: 1.2rem;">fableworld.falix.gg</span>
         </div>
 
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-            <div class="rank-card" style="padding: 20px;"><h3>1.5k+</h3><p>Игроков</p></div>
-            <div class="rank-card" style="padding: 20px;"><h3>100%</h3><p>Анархия</p></div>
-            <div class="rank-card" style="padding: 20px;"><h3>24/7</h3><p>Uptime</p></div>
+        <div class="grid" style="margin-top: 50px;">
+            <div class="info-card"><h3>Анархия</h3><p>Хардкорное выживание без лишних правил и границ.</p></div>
+            <div class="info-card"><h3>Мини-игры</h3><p>Уникальные арены и состязания для отдыха от грифа.</p></div>
+            <div class="info-card"><h3>Анти-чит</h3><p>Мощная защита и честная игра для каждого пользователя.</p></div>
         </div>
     </div>
 
     <div id="t" class="content">
-        <h1 style="margin-bottom: 40px;">ДОСТУПНЫЕ ПРИВИЛЕГИИ</h1>
-        <div class="grid" id="ranks-list">
+        <h1>МАГАЗИН ТОВАРОВ</h1>
+        <div class="grid">
             <div class="rank-card">
-                <h3 style="color: #5f5;">VIP</h3>
-                <div class="rank-desc"><li>2 точки дома</li><li>Набор /kit vip</li><li>Префикс [VIP]</li></div>
-                <span class="price-tag">70 ₽</span>
-                <button class="btn-pay" onclick="showPay('VIP', 70)">КУПИТЬ</button>
+                <h2 style="color: gold; margin: 0;">OVERLORD</h2>
+                <ul style="padding-left: 20px; color: #aaa; font-size: 0.9rem;">
+                    <li>Полный доступ ко всем командам</li>
+                    <li>Уникальный статус в табе и чате</li>
+                    <li>Личный менеджер поддержки</li>
+                </ul>
+                <span class="price">11500 ₽</span>
+                <button class="btn" onclick="buy('OVERLORD', 11500)">КУПИТЬ СЕЙЧАС</button>
             </div>
-            <div class="rank-card">
-                <h3 style="color: #5ff;">PREMIUM</h3>
-                <div class="rank-desc"><li>4 точки дома</li><li>Полет /fly</li><li>Набор /kit premium</li></div>
-                <span class="price-tag">150 ₽</span>
-                <button class="btn-pay" onclick="showPay('PREMIUM', 150)">КУПИТЬ</button>
             </div>
-            <div class="rank-card">
-                <h3 style="color: #55f;">ELITE</h3>
-                <div class="rank-desc"><li>6 точек дома</li><li>Лечение /heal</li><li>Набор /kit elite</li></div>
-                <span class="price-tag">300 ₽</span>
-                <button class="btn-pay" onclick="showPay('ELITE', 300)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #f5f;">LEGEND</h3>
-                <div class="rank-desc"><li>8 точек дома</li><li>Скорость /speed</li><li>Виртуальный верстак</li></div>
-                <span class="price-tag">500 ₽</span>
-                <button class="btn-pay" onclick="showPay('LEGEND', 500)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #ff5;">MYTHIC</h3>
-                <div class="rank-desc"><li>10 точек дома</li><li>Эндер-сундук /ec</li><li>Ремонт вещей /repair</li></div>
-                <span class="price-tag">800 ₽</span>
-                <button class="btn-pay" onclick="showPay('MYTHIC', 800)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #f55;">TITAN</h3>
-                <div class="rank-desc"><li>15 точек дома</li><li>Смена ника /nick</li><li>Узнать инвентарь /invsee</li></div>
-                <span class="price-tag">1200 ₽</span>
-                <button class="btn-pay" onclick="showPay('TITAN', 1200)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #ff8c00;">HERO</h3>
-                <div class="rank-desc"><li>20 точек дома</li><li>Вернуть на место смерти /back</li><li>Набор /kit hero</li></div>
-                <span class="price-tag">1800 ₽</span>
-                <button class="btn-pay" onclick="showPay('HERO', 1800)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #8b0000;">DEMON</h3>
-                <div class="rank-desc"><li>30 точек дома</li><li>Режим невидимости /v</li><li>Тп к игрокам без запроса</li></div>
-                <span class="price-tag">2500 ₽</span>
-                <button class="btn-pay" onclick="showPay('DEMON', 2500)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #ff1493;">DRAGON</h3>
-                <div class="rank-desc"><li>50 точек дома</li><li>Своё сообщение о входе</li><li>Иммунитет к кику/бану</li></div>
-                <span class="price-tag">3500 ₽</span>
-                <button class="btn-pay" onclick="showPay('DRAGON', 3500)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #ff4500;">PHOENIX</h3>
-                <div class="rank-desc"><li>Беск. точек дома</li><li>Очистка чата</li><li>Право разбанивать игроков</li></div>
-                <span class="price-tag">5000 ₽</span>
-                <button class="btn-pay" onclick="showPay('PHOENIX', 5000)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #ffffff; text-shadow: 0 0 10px #fff;">GOD</h3>
-                <div class="rank-desc"><li>Все права админа</li><li>Бессмертие /god</li><li>Создание своих китов</li></div>
-                <span class="price-tag">7500 ₽</span>
-                <button class="btn-pay" onclick="showPay('GOD', 7500)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card">
-                <h3 style="color: #00ffff;">ETERNAL</h3>
-                <div class="rank-desc"><li>Права Оператора</li><li>Доступ к консоли (частично)</li><li>Личный менеджер</li></div>
-                <span class="price-tag">9000 ₽</span>
-                <button class="btn-pay" onclick="showPay('ETERNAL', 9000)">КУПИТЬ</button>
-            </div>
-            <div class="rank-card" style="border: 2px solid gold; box-shadow: 0 0 30px rgba(255,215,0,0.2);">
-                <div style="background: gold; color: #000; font-size: 10px; font-weight: 900; position: absolute; top: 10px; right: 10px; padding: 2px 10px; border-radius: 5px;">TOP</div>
-                <h3 style="color: gold;">OVERLORD</h3>
-                <div class="rank-desc"><li>ВЛАДЕЛЕЦ СЕРВЕРА</li><li>Полный доступ ко всему</li><li>Уникальный плащ и префикс</li></div>
-                <span class="price-tag">11500 ₽</span>
-                <button class="btn-pay" onclick="showPay('OVERLORD', 11500)">ЗАВЛАДЕТЬ</button>
-            </div>
-        </div>
-
-        <div id="pay-screen" style="display: none;">
-            <div class="glass-box">
-                <button onclick="hidePay()" style="background:none; border:none; color:#777; cursor:pointer; float:left; font-size: 1.5rem;">←</button>
-                <h2 id="pay-title" style="margin-top: 0; color: var(--neon);">Оформление</h2>
-                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px; margin: 20px 0;">
-                    <p id="pay-info" style="margin: 0; font-weight: bold;"></p>
-                </div>
-                <input type="text" id="user-nick" placeholder="Ваш игровой ник">
-                <button class="btn-pay" onclick="processOrder()">ПЕРЕЙТИ К ОПЛАТЕ</button>
-                <p style="font-size: 0.8rem; opacity: 0.5; margin-top: 15px;">Нажимая кнопку, вы соглашаетесь с правилами проекта.</p>
-            </div>
-        </div>
     </div>
 
     <div id="a" class="content">
         <div class="glass-box">
-            <div style="font-size: 5rem; margin-bottom: 20px;">👤</div>
-            <h2>ВАШ ПРОФИЛЬ</h2>
-            <div style="text-align: left; margin-top: 30px;">
-                <p>Никнейм: <span id="display-nick" style="color: var(--neon);">Не авторизован</span></p>
-                <p>Баланс: <span style="color: #5f5;">0.00 ₽</span></p>
-                <p>Текущий статус: <span class="badge">ИГРОК</span></p>
-            </div>
-            <button class="btn-pay" style="margin-top: 20px; background: #333;" onclick="tab('t')">ПОПОЛНИТЬ БАЛАНС</button>
-        </div>
-    </div>
-
-    <div id="p" class="content">
-        <div class="glass-box">
-            <h2>🎫 АКТИВАЦИЯ</h2>
-            <p>Введите секретный код для получения бонуса</p>
-            <input type="text" id="promo-input" placeholder="ПРОМОКОД">
-            <button class="btn-pay" onclick="alert('Промокод не найден или истек')">ПРИМЕНИТЬ</button>
+            {% if user %}
+                <h2>Привет, <span style="color:var(--neon)">{{ user.nick }}</span>!</h2>
+                <div style="background: #000; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: left;">
+                    <p>💰 Баланс: <b style="color:#5f5">{{ user.balance }} ₽</b></p>
+                    <p>🏆 Статус: <b style="color:var(--gold)">Игрок</b></p>
+                </div>
+                <button class="btn" style="background:#333" onclick="location.href='/logout'">ВЫЙТИ ИЗ АККАУНТА</button>
+            {% else %}
+                <h2>ВХОД / РЕГИСТРАЦИЯ</h2>
+                <form action="/auth" method="post">
+                    <input type="text" name="nick" placeholder="Ваш игровой ник" required>
+                    <input type="password" name="pass" placeholder="Пароль" required>
+                    <button type="submit" name="action" value="login" class="btn">ВОЙТИ</button>
+                    <button type="submit" name="action" value="reg" class="btn" style="margin-top:10px; background:#222; border: 1px solid #444;">СОЗДАТЬ АККАУНТ</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
     <div id="s" class="content">
         <div class="glass-box">
-            <div style="font-size: 4rem; margin-bottom: 20px;">🛠</div>
-            <h2>НУЖНА ПОМОЩЬ?</h2>
-            <p>Если у вас возникли вопросы по оплате или работе сервера, наш менеджер ответит вам в течение 15 минут.</p>
-            <div style="margin-top: 30px;">
-                <a href="https://t.me/WorldTeam_Manager" target="_blank" class="btn-pay" style="text-decoration: none; display: block;">СВЯЗАТЬСЯ В TELEGRAM</a>
-            </div>
+            <h2>ПОМОЩЬ</h2>
+            <p>Есть вопросы? Наш менеджер поможет!</p>
+            <a href="https://t.me/WorldTeam_Manager" target="_blank" class="btn" style="text-decoration:none; display:block;">ОТКРЫТЬ TELEGRAM</a>
         </div>
     </div>
 
@@ -225,53 +123,22 @@
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').classList.toggle('active');
     }
-
     function tab(id) {
         document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id !== 't') hidePay();
         toggleMenu();
-        window.scrollTo(0,0);
     }
-
     function copyIP() {
         navigator.clipboard.writeText("fableworld.falix.gg");
-        const hint = document.getElementById('ip-hint');
-        hint.innerText = "СКОПИРОВАНО В БУФЕР!";
-        hint.style.color = "#5f5";
-        setTimeout(() => { 
-            hint.innerText = "НАЖМИ, ЧТОБЫ КОПИРОВАТЬ"; 
-            hint.style.color = "";
-        }, 2000);
+        alert("IP адрес скопирован!");
     }
-
-    function showPay(name, price) {
-        document.getElementById('ranks-list').style.display = 'none';
-        document.getElementById('pay-screen').style.display = 'block';
-        document.getElementById('pay-title').innerText = "Покупка " + name;
-        document.getElementById('pay-info').innerText = "Сумма заказа: " + price + " ₽";
-        window.currentRank = name;
-        window.currentPrice = price;
-    }
-
-    function hidePay() {
-        document.getElementById('ranks-list').style.display = 'grid';
-        document.getElementById('pay-screen').style.display = 'none';
-    }
-
-    function processOrder() {
-        const nick = document.getElementById('user-nick').value;
-        if(!nick) return alert("Пожалуйста, введите ваш ник!");
-        // Сохраняем ник для профиля (имитация)
-        localStorage.setItem('fable_nick', nick);
-        document.getElementById('display-nick').innerText = nick;
-        
-        location.href = `/buy/${window.currentRank}_for_${nick}/${window.currentPrice}`;
-    }
-    
-    // Загрузка ника при старте
-    if(localStorage.getItem('fable_nick')) {
-        document.getElementById('display-nick').innerText = localStorage.getItem('fable_nick');
+    function buy(name, price) {
+        {% if not user %}
+            alert("Сначала войдите в профиль!");
+            tab('a');
+        {% else %}
+            location.href = `/buy/${name}/${price}`;
+        {% endif %}
     }
 </script>
 </body>
