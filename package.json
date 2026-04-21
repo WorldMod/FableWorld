@@ -1,5 +1,4 @@
-cat << 'EOF' > package.json
-{
+echo '{
   "name": "fableworld-store",
   "version": "1.0.0",
   "scripts": {
@@ -10,5 +9,4 @@ cat << 'EOF' > package.json
     "cors": "^2.8.5",
     "rcon-client": "^1.1.0"
   }
-}
-EOF
+}' > package.json
