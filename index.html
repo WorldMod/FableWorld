@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FableWorld Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #0b0b1a; color: white; font-family: 'Inter', sans-serif; }
+        .purple-gradient { background: linear-gradient(145deg, #1e1b4b 0%, #111122 100%); }
+        .tab-active { border-bottom: 3px solid #8b5cf6; color: white; opacity: 1; }
+        .card-glow:hover { box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); border-color: #8b5cf6; }
+        .log-container { background: rgba(0,0,0,0.4); border: 1px solid rgba(139, 92, 246, 0.2); font-family: 'Courier New', monospace; }
+    </style>
+</head>
+<body>
+    <nav class="p-4 flex justify-between items-center border-b border-purple-900/40 bg-[#0b0b1a]/95 sticky top-0 z-50">
+        <h1 class="text-xl font-black italic text-purple-500 uppercase">FableWorld</h1>
+        <div class="flex gap-4 text-[10px] font-bold uppercase tracking-widest opacity-60">
+            <button onclick="showTab('shop')" id="btn-shop" class="tab-active py-2">Магазин</button>
+            <button onclick="showTab('promo')" id="btn-promo" class="py-2">Промо</button>
+            <button onclick="showTab('account')" id="btn-account" class="py-2">Аккаунт</button>
+        </div>
+        <select id="currency" onchange="updateUI()" class="bg-purple-900/40 border border-purple-500/50 rounded-lg px-2 py-1 text-[10px] outline-none">
+            <option value="PLN">zł (PLN)</option>
+            <option value="USD" selected>$ (USD)</option>
+            <option value="RUB">₽ (RUB)</option>
+        </select>
+    </nav>
+
+    <section id="tab-shop" class="max-w-7xl mx-auto px-6 py-12"><div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="ranks-container"></div></section>
+
+    <section id="tab-promo" class="hidden max-w-2xl mx-auto px-6 py-12">
+        <div id="admin-panel" class="hidden border-2 border-dashed border-red-500/50 p-6 rounded-3xl mb-10 bg-red-900/10 text-center text-xs">
+            <h3 class="text-red-500 font-black mb-4">ADMIN: CREATE PROMO</h3>
+            <div class="flex flex-col gap-2 italic">
+                <input id="new-promo-name" type="text" placeholder="Код" class="bg-black p-2 border border-red-900/30 text-center">
+                <input id="new-promo-val" type="number" placeholder="Сумма (PLN)" class="bg-black p-2 border border-red-900/30 text-center">
+                <button onclick="createPromo()" class="bg-red-600 p-2 font-bold uppercase">Создать</button>
+            </div>
+        </div>
+        <div class="purple-gradient border border-purple-500/30 p-10 rounded-3xl text-center shadow-xl">
+            <h2 class="text-2xl font-black mb-6 uppercase italic">Активация кода</h2>
+            <div class="flex gap-2"><input id="promo-input" type="text" placeholder="ВВЕДИ КОД" class="bg-black/40 border border-purple-500/30 rounded-xl px-4 py-3 w-full outline-none text-center font-bold text-xl uppercase"><button onclick="activatePromo()" class="bg-purple-600 px-6 rounded-xl font-black">OK</button></div>
+            <p id="promo-msg" class="mt-4 text-green-400 font-bold uppercase text-xs"></p>
+        </div>
+    </section>
+
+    <section id="tab-account" class="hidden max-w-2xl mx-auto px-6 py-10">
+        <div id="auth-box" class="purple-gradient border border-purple-500/30 p-10 rounded-3xl text-center">
+            <h2 class="text-xl font-black mb-6 uppercase italic">Вход / Регистрация</h2>
+            <input id="nick-input" type="text" placeholder="Ваш Ник" class="bg-black/40 border border-purple-500/30 rounded-xl px-4 py-4 w-full mb-3 text-center outline-none">
+            <input id="pass-input" type="password" placeholder="Пароль" class="bg-black/40 border border-purple-500/30 rounded-xl px-4 py-4 w-full mb-8 text-center outline-none">
+            <button onclick="handleAuth()" class="w-full bg-white text-black py-4 rounded-xl font-black uppercase">Продолжить</button>
+        </div>
+
+        <div id="profile-box" class="hidden">
+            <div class="purple-gradient border border-purple-500/30 p-8 rounded-3xl text-center mb-6 shadow-2xl">
+                <h2 id="user-nick" class="text-3xl font-black mb-2 uppercase italic text-purple-400">НИКНЕЙМ</h2>
+                <p class="text-4xl font-black text-white mb-6"><span id="user-balance-val">0.00</span> <span class="curr-label text-purple-600 text-xl font-normal">USD</span></p>
+                <div class="flex flex-col gap-2">
+                    <button onclick="openDeposit()" class="w-full bg-green-600 py-3 rounded-xl font-black uppercase shadow-lg shadow-green-900/40">Пополнить</button>
+                    <button id="admin-add-btn" onclick="adminAddMoney()" class="hidden w-full bg-red-600/20 border border-red-600 text-red-500 py-2 rounded-xl font-bold text-[10px] uppercase">Admin: Add Money</button>
+                    <button onclick="logout()" class="text-[10px] opacity-20 hover:opacity-100 underline mt-2 uppercase">Выйти из аккаунта</button>
+                </div>
+            </div>
+            <div class="purple-gradient border border-purple-900/40 rounded-3xl p-6">
+                <h3 class="text-[10px] font-black text-purple-400 mb-4 uppercase tracking-[0.3em]">Console: Transactions</h3>
+                <div id="purchase-log" class="log-container h-48 overflow-y-auto p-4 rounded-xl text-[10px] text-green-400 space-y-1"></div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const trustWallet = "0xfe54b29253b31bc29e0f02eeeeca16545778117c";
+        const rates = { PLN: 1, USD: 0.25, RUB: 23, ILS: 0.93, BYN: 0.8 };
+        let players = JSON.parse(localStorage.getItem('fable_players')) || {};
+        let promos = JSON.parse(localStorage.getItem('fable_promos')) || {};
+        let logs = JSON.parse(localStorage.getItem('fable_logs')) || [];
+        let currentUser = localStorage.getItem('fable_current_user');
+
+        const items = [
+            { id: "vip", name: "VIP", pln: 12 }, { id: "profi", name: "PROFI", pln: 40 },
+            { id: "premium", name: "PREMIUM", pln: 100 }, { id: "holy", name: "HOLY", pln: 200 },
+            { id: "case_money", name: "Кейс 'Денежный'", pln: 10 }, { id: "case_donate", name: "Кейс 'С Донатом'", pln: 20 },
+            { id: "case_donates", name: "Кейс 'Донаты'", pln: 39.96 }, { id: "unban", name: "Разбан", pln: 40 }, { id: "unmute", name: "Размут", pln: 27.96 }
+        ];
+
+        function saveData() {
+            localStorage.setItem('fable_players', JSON.stringify(players));
+            localStorage.setItem('fable_promos', JSON.stringify(promos));
+            localStorage.setItem('fable_logs', JSON.stringify(logs));
+            localStorage.setItem('fable_current_user', currentUser || "");
+        }
+
+        function showTab(name) {
+            ['shop', 'promo', 'account'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('btn-' + t).classList.remove('tab-active');
+            });
+            document.getElementById('tab-' + name).classList.remove('hidden');
+            document.getElementById('btn-' + name).classList.add('tab-active');
+        }
+
+        function handleAuth() {
+            const nick = document.getElementById('nick-input').value.trim();
+            const pass = document.getElementById('pass-input').value.trim();
+            if (nick.length < 2) return alert("Введите ник");
+            if (!players[nick]) players[nick] = { pass: pass, balance: 0 };
+            else if (players[nick].pass !== pass) return alert("Пароль!");
+            currentUser = nick; saveData(); updateUI();
+        }
+
+        function logout() { currentUser = null; saveData(); updateUI(); }
+        function openDeposit() { alert(`Trust Wallet:\n${trustWallet}\n\nСкриншот в TG: @WorldSviat`); }
+        function addLog(nick, itemName, price, curr) {
+            const time = new Date().toLocaleTimeString();
+            logs.unshift({ nick, itemName, price, curr, time });
+            if (logs.length > 50) logs.pop();
+            saveData(); renderLogs();
+        }
+        function renderLogs() {
+            const container = document.getElementById('purchase-log');
+            container.innerHTML = logs.map(l => `<div>[${l.time}] ${l.nick} купил ${l.itemName} за ${l.price} ${l.curr}</div>`).join('');
+        }
+
+        function buy(id, costPLN, itemName) {
+            if (!currentUser) return showTab('account');
+            const curr = document.getElementById('currency').value;
+            if (players[currentUser].balance < costPLN) return alert("Недостаточно средств!");
+            
+            players[currentUser].balance -= costPLN;
+            addLog(currentUser, itemName, (costPLN * rates[curr]).toFixed(2), curr);
+            saveData(); updateUI();
+            
+            fetch('/api/buy', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ nickname: currentUser, rankId: id })
+            }).catch(e => console.log("RCON Offline"));
+            alert("Покупка прошла!");
+        }
+
+        function updateUI() {
+            const curr = document.getElementById('currency').value;
+            document.querySelectorAll('.curr-label').forEach(l => l.innerText = curr);
+            if (currentUser === "WorldSviat") {
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-add-btn').classList.remove('hidden');
+            }
+            if (currentUser) {
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('profile-box').classList.remove('hidden');
+                document.getElementById('user-nick').innerText = currentUser;
+                document.getElementById('user-balance-val').innerText = (players[currentUser].balance * rates[curr]).toFixed(2);
+                renderLogs();
+            } else {
+                document.getElementById('auth-box').classList.remove('hidden');
+                document.getElementById('profile-box').classList.add('hidden');
+            }
+            document.getElementById('ranks-container').innerHTML = items.map(item => `
+                <div class="purple-gradient border border-purple-800 rounded-3xl p-6 flex flex-col justify-between card-glow">
+                    <h3 class="text-sm font-black mb-4 uppercase italic">${item.name}</h3>
+                    <div class="text-2xl font-black mb-4">${(item.pln * rates[curr]).toFixed(2)} <span class="text-[10px] opacity-40">${curr}</span></div>
+                    <button onclick="buy('${item.id}', ${item.pln}, '${item.name}')" class="w-full bg-purple-600 py-2 rounded-xl text-[10px] font-black uppercase">Купить</button>
+                </div>`).join('');
+        }
+        function adminAddMoney() {
+            const target = prompt("Ник?");
+            const amount = parseFloat(prompt("PLN?"));
+            if (players[target]) { players[target].balance += amount; saveData(); updateUI(); }
+        }
+        function createPromo() {
+            const name = document.getElementById('new-promo-name').value.toUpperCase().trim();
+            const val = parseFloat(document.getElementById('new-promo-val').value);
+            if(name && val) { promos[name] = { val: val, limit: 10, used: 0, users: [] }; saveData(); alert("OK"); }
+        }
+        function activatePromo() {
+            const code = document.getElementById('promo-input').value.toUpperCase().trim();
+            const promo = promos[code];
+            if (promo && promo.used < promo.limit && !promo.users.includes(currentUser)) {
+                players[currentUser].balance += promo.val; promo.used++; promo.users.push(currentUser);
+                saveData(); updateUI(); alert("АКТИВИРОВАНО!");
+            }
+        }
+        updateUI();
+    </script>
+</body>
+</html>
