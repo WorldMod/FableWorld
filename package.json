@@ -1,6 +1,8 @@
 {
   "name": "fableworld-store",
   "version": "1.0.0",
+  "description": "FableWorld Shop",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
