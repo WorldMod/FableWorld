@@ -1,13 +1,12 @@
 const express = require('express');
 const cors = require('cors');
-const { Rcon } = require('rcon-client');
+const { Rcon } = require('rcon-client'); // Проверь, что скобки есть!
 const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// === ГЛАВНАЯ НАСТРОЙКА АДМИНА ===
 const ADMIN_NICKNAME = 'WorldMod'; 
 
 const DATA_FILE = './database.json';
@@ -19,14 +18,17 @@ if (fs.existsSync(DATA_FILE)) {
 
 const save = () => fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 
+// Исправленный блок инициализации Rcon
 const rcon = new Rcon({
-    host: '45.131.109.151', // Твой IP с Falix
-    port: 25575,            // Твой RCON порт
-    password: 'твой_пароль' // ЗАМЕНИ НА СВОЙ ПАРОЛЬ
+    host: '45.131.109.151',
+    port: 25575,
+    password: '232013' // НЕ ЗАБУДЬ ПОСТАВИТЬ СВОЙ ПАРОЛЬ
 });
 
-// Авто-подключение к RCON
-rcon.connect().catch(console.error);
+// Безопасное подключение
+rcon.connect()
+    .then(() => console.log("RCON подключен успешно!"))
+    .catch(err => console.error("Ошибка RCON:", err.message));
 
 // Регистрация / Логин
 app.post('/api/auth', (req, res) => {
