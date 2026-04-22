@@ -2,142 +2,63 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>FableWorld Shop</title>
+    <title>FableWorld Store</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #e0e0e0; margin: 0; display: flex; justify-content: center; }
-        .container { width: 90%; max-width: 1000px; padding: 20px; }
-        .card { background: #1e1e1e; border: 1px solid #333; padding: 20px; border-radius: 12px; margin: 10px; display: inline-block; width: 250px; transition: 0.3s; }
-        .card:hover { border-color: #ff9800; transform: translateY(-5px); }
-        .btn { background: #ff9800; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
-        .hidden { display: none !important; }
-        #terminal { background: #000; color: #0f0; padding: 15px; height: 150px; overflow-y: auto; font-family: monospace; border-radius: 8px; margin-bottom: 10px; border: 1px solid #333; }
-        .admin-box { background: #2b1010; border: 2px solid #ff4444; padding: 20px; border-radius: 12px; margin-top: 40px; }
-        input { background: #2a2a2a; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; margin: 5px 0; width: calc(100% - 22px); }
+        body { background: #121212; color: white; font-family: sans-serif; text-align: center; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 10px; margin: 10px; display: inline-block; width: 250px; border: 1px solid #333; }
+        .btn { background: #ff9800; border: none; padding: 10px; color: white; border-radius: 5px; cursor: pointer; width: 100%; }
+        .hidden { display: none; }
+        input { padding: 10px; margin: 5px; width: 80%; background: #333; color: white; border: 1px solid #444; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>⚔️ FableWorld Store</h1>
-
-    <div id="auth-section">
-        <input type="text" id="nick-input" placeholder="Введите ваш ник">
-        <button class="btn" onclick="login()">Войти в аккаунт</button>
+    <h1>⚔️ FableWorld Shop</h1>
+    <div id="auth">
+        <input type="text" id="nick" placeholder="Ник в Minecraft">
+        <button class="btn" onclick="login()">Войти</button>
     </div>
-
-    <div id="user-section" class="hidden">
-        <div style="background: #2a2a2a; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-            <h3>Профиль: <span id="user-nick" style="color:#ff9800"></span></h3>
-            <p>Баланс: <b id="user-balance">0</b> Fables</p>
-            <button class="btn" style="background:#555; width: auto;" onclick="logout()">Выйти</button>
+    <div id="main" class="hidden">
+        <p>Игрок: <b id="u-nick"></b> | Баланс: <b id="u-bal"></b> Fables</p>
+        <div class="box">
+            <h3>Кейс Fables</h3><p>5.00 Fables</p>
+            <button class="btn" onclick="buy('case_donate', 5)">Купить</button>
         </div>
-
-        <div id="shop">
-            <div class="card">
-                <h3>Кейс "Fables"</h3>
-                <p>Цена: 5.00 Fables</p>
-                <button class="btn" onclick="buy('case_donate', 5)">Купить</button>
-            </div>
-            <div class="card">
-                <h3>Разбан</h3>
-                <p>Цена: 10.00 Fables</p>
-                <button class="btn" onclick="buy('unban', 10)">Купить</button>
-            </div>
-        </div>
-
-        <div id="admin-panel" class="admin-box hidden">
-            <h2 style="color:#ff4444">Панель управления (Админ)</h2>
-            <div id="terminal">Ожидание команд...</div>
-            <input type="text" id="cmd-input" placeholder="Введите команду сервера...">
-            <button class="btn" style="background:#ff4444" onclick="sendConsole()">Выполнить в консоли</button>
-            <hr style="border-color:#444">
-            <input type="text" id="target-nick" placeholder="Ник игрока">
-            <input type="number" id="add-amount" placeholder="Сумма">
-            <button class="btn" style="background:#4CAF50" onclick="addMoney()">Выдать баланс</button>
+        <div id="admin" class="hidden" style="border: 1px solid red; padding: 10px; margin-top: 20px;">
+            <h3>Админ-панель</h3>
+            <input type="text" id="adm-cmd" placeholder="Команда сервера">
+            <button class="btn" onclick="sendCmd()">Выполнить</button>
         </div>
     </div>
-</div>
-
-<script>
-    const API = 'https://fableworld.onrender.com/api';
-    const ADMIN_NICKNAME = 'WorldMod';
-
-    function login() {
-        const nick = document.getElementById('nick-input').value;
-        if(!nick) return;
-        fetch(`${API}/auth`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nickname: nick })
-        })
-        .then(res => res.json())
-        .then(user => {
-            localStorage.setItem('user', JSON.stringify(user));
-            updateUI();
-        });
-    }
-
-    function updateUI() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('user-section').classList.remove('hidden');
-            document.getElementById('user-nick').textContent = user.nickname;
-            document.getElementById('user-balance').textContent = user.balance.toFixed(2);
-            if (user.nickname === ADMIN_NICKNAME) document.getElementById('admin-panel').classList.remove('hidden');
+    <script>
+        const API = '/api';
+        const ADMIN = 'WorldMod';
+        function login() {
+            const nick = document.getElementById('nick').value;
+            fetch(API+'/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nickname:nick}) })
+            .then(r=>r.json()).then(u=>{ localStorage.setItem('user', JSON.stringify(u)); location.reload(); });
         }
-    }
-
-    function buy(id, price) {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if(user.balance < price) return alert('Недостаточно средств!');
-        fetch(`${API}/buy`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nickname: user.nickname, rankId: id, price: price })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.error) alert('Ошибка: ' + data.error);
-            else {
-                alert('Покупка завершена!');
-                user.balance = data.balance;
-                localStorage.setItem('user', JSON.stringify(user));
-                updateUI();
+        function update() {
+            const u = JSON.parse(localStorage.getItem('user'));
+            if(u) {
+                document.getElementById('auth').classList.add('hidden');
+                document.getElementById('main').classList.remove('hidden');
+                document.getElementById('u-nick').innerText = u.nickname;
+                document.getElementById('u-bal').innerText = u.balance;
+                if(u.nickname === ADMIN) document.getElementById('admin').classList.remove('hidden');
             }
-        });
-    }
-
-    function sendConsole() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const cmd = document.getElementById('cmd-input').value;
-        const term = document.getElementById('terminal');
-        fetch(`${API}/admin/command`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ nickname: user.nickname, command: cmd })
-        })
-        .then(res => res.json())
-        .then(data => {
-            term.innerHTML += `<br>> ${cmd}<br><span style="color:#fff">${data.response || data.error}</span>`;
-            term.scrollTop = term.scrollHeight;
-        });
-    }
-
-    function addMoney() {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const target = document.getElementById('target-nick').value;
-        const amount = document.getElementById('add-amount').value;
-        fetch(`${API}/admin/add-money`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ adminNick: user.nickname, targetNick: target, amount })
-        })
-        .then(res => res.json())
-        .then(() => { alert('Баланс начислен!'); location.reload(); });
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
-    updateUI();
-</script>
+        }
+        function buy(id, p) {
+            const u = JSON.parse(localStorage.getItem('user'));
+            fetch(API+'/buy', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nickname:u.nickname, rankId:id, price:p}) })
+            .then(r=>r.json()).then(d=>{ if(d.error) alert(d.error); else location.reload(); });
+        }
+        function sendCmd() {
+            const u = JSON.parse(localStorage.getItem('user'));
+            const c = document.getElementById('adm-cmd').value;
+            fetch(API+'/admin/command', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nickname:u.nickname, command:c}) })
+            .then(r=>r.json()).then(d=>alert(d.response));
+        }
+        update();
+    </script>
 </body>
 </html>
